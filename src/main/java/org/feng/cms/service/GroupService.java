@@ -5,10 +5,14 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.feng.basic.model.Pager;
+import org.feng.cms.dao.IChannelDao;
 import org.feng.cms.dao.IGroupDao;
 import org.feng.cms.dao.IUserDao;
+import org.feng.cms.model.Channel;
+import org.feng.cms.model.ChannelTree;
 import org.feng.cms.model.CmsException;
 import org.feng.cms.model.Group;
+import org.feng.cms.model.GroupChannel;
 import org.feng.cms.model.User;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +20,15 @@ import org.springframework.stereotype.Service;
 public class GroupService implements IGroupService{
 	private IGroupDao groupDao;
 	private IUserDao userDao;
+	private IChannelDao channelDao;
 
-	
+	public IChannelDao getChannelDao() {
+		return channelDao;
+	}
+	@Inject
+	public void setChannelDao(IChannelDao channelDao) {
+		this.channelDao = channelDao;
+	}
 	public IGroupDao getGroupDao() {
 		return groupDao;
 	}
@@ -69,6 +80,37 @@ public class GroupService implements IGroupService{
 	@Override
 	public void deleteGroupUsers(int gid) {
 		groupDao.deleteGroupUsers(gid);
+	}
+	@Override
+	public void addGroupChannel(int gid, int cid) {
+		Group g = groupDao.load(gid);
+		Channel c = channelDao.load(cid);
+		if(c==null || g ==null) throw new CmsException("要添加的组频道关联对象不存在");
+		groupDao.addGroupChannel(g, c);
+	}
+	@Override
+	public GroupChannel loadGroupChannel(int gid, int cid) {
+		return groupDao.loadGroupChannel(gid, cid);
+	}
+	@Override
+	public void clearGroupChannel(int gid) {
+		groupDao.clearGroupChannel(gid);
+	}
+	@Override
+	public void deleteGroupChannel(int gid, int cid) {
+		groupDao.deleteGroupChannel(gid, cid);
+	}
+	@Override
+	public List<Integer> listGroupChannelIds(int gid) {
+		return groupDao.listGroupChannelIds(gid);
+	}
+	@Override
+	public List<ChannelTree> generateGroupChannelTree(int gid) {
+		return groupDao.generateGroupChannelTree(gid);
+	}
+	@Override
+	public List<ChannelTree> generateUserChannelTree(int uid) {
+		return groupDao.generateUserChannelTree(uid);
 	}
 
 }
